@@ -28,6 +28,7 @@ body{
 }
 .content_1 {
     grid-area: content_1;
+    cursor: pointer;
 }
 .content_2 {
     grid-area: content_2;

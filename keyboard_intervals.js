@@ -2,7 +2,7 @@ let keys = document.querySelectorAll(".key");
 let audioArr = document.querySelectorAll("audio");
 const audioAll = document.querySelectorAll('audio');
 let monitor_header = document.querySelector('.monitor_header');
-
+let monitor_footer = document.querySelector('.monitor_footer');
 
     
 //заполнить буфер
@@ -24,6 +24,7 @@ for (let i = 0; i < keys.length; i++){
     keys[i].addEventListener('mousedown', function () {
         console.log('KLICK mousedown');
         let sound = audioAll[i];
+        keys[i].classList.add('active_one_key');
         sound.play();
           });  
 };
@@ -57,18 +58,36 @@ window.AudioContext = window.AudioContext || window.webkitAudioContext;
   
  
 
-let interval_massive = {м2: 1, Б2: 2, м3: 3, Б3: 4, ч4: 5, ТТТ: 6, ч5: 7, м6: 8, Б6: 9, м7: 10, Б7: 11};
+let interval_massive = ['м2', 'Б2', 'м3', 'Б3', 'ч4', 'ТТТ', 'ч5', 'м6', 'Б6', 'м7', 'Б7'];
+let interval_massive_length =  Object.keys(interval_massive).length;
 
-let find_interval = function(mass, step){
-  console.log(Object.keys(mass));
-  console.log(Math.floor(Math.random()*mass.length));
-  let random_key = mass[Math.floor(Math.random()*mass.length)]
-  console.log(random_key);
-  keys[random_key].classList.add('active_one_key');
-  // console.log(interval_massive);
-  let key_step = random_key + interval_massive[step];
-  monitor_header.textContent = step;
-  keys[key_step].classList.add('active_one_key');
+
+let find_interval = function(mass){
+  let keys_length = Object.keys(mass).length;
+  let random_key_number = Math.floor(Math.random()*keys_length);
+  let random_int_number = Math.floor(Math.random()*interval_massive_length);
+  console.log('Общая сумма = ' + random_key_number + ' + ' + random_int_number + ' = ' + (random_key_number+random_int_number));
+  if ((random_key_number + 1) + random_int_number >= keys_length){
+    random_key_number -= random_int_number + 1;
+    console.log('random_key_number' + random_key_number);
+  }
+  let random_key = mass[random_key_number];
+  let random_int = interval_massive[random_int_number];
+  random_key.classList.add('active_one_key');
+
+  // console.log(random_int);
+  // console.log(random_int_number);
+  // let key_step = random_key_number + interval_massive[step];
+  monitor_header.textContent = interval_massive[random_int_number];
+  // keys[key_step].classList.add('active_one_key');
 }
-find_interval(interval_massive,'ч5')
+find_interval(keys);
 console.log();
+
+monitor_footer.addEventListener('mousedown', function () {
+  for(let i = 0; i < keys.length; i++){
+    keys[i].classList.remove('active_one_key');
+  }
+  
+  find_interval(keys);
+});
