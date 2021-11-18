@@ -3,8 +3,16 @@ let audioArr = document.querySelectorAll("audio");
 const audioAll = document.querySelectorAll('audio');
 let monitor_header = document.querySelector('.monitor_header');
 let monitor_footer = document.querySelector('.monitor_footer');
+let user_answer = [];
+let comp_answer = [];
+let right_answer = 0;
+let all_answer = [];
+let meter = 0;
+let interval_marker = '';
+let result = document.querySelector('.result');
 
-    
+
+
 //заполнить буфер
 let mySoundBuffer = new AudioContext();
 mySoundBuffer.createBuffer(2, 22050, 44100);
@@ -17,15 +25,35 @@ mySoundBuffer.createBuffer(2, 22050, 44100);
 
 for (let i = 0; i < keys.length; i++){
     keys[i].addEventListener('touchstart', function () {
-        console.log('KLICK');
+       
         let sound = audioAll[i];
         sound.play();
           });
     keys[i].addEventListener('mousedown', function () {
-        console.log('KLICK mousedown');
+     
         let sound = audioAll[i];
         keys[i].classList.add('active_one_key');
+        user_answer = i-1;
+        
         sound.play();
+
+        all_answer[meter] = {
+          int_marker: interval_marker,
+          comp: comp_answer,
+          user: user_answer
+          
+        }
+
+        if(comp_answer == user_answer){
+          right_answer += 1;
+          all_answer[meter].answer = true;
+        } else {all_answer[meter].answer = false;}
+
+        meter += 1;
+        console.log(all_answer);
+
+setTimeout(find_interval, 700, keys);
+
           });  
 };
 
@@ -63,31 +91,78 @@ let interval_massive_length =  Object.keys(interval_massive).length;
 
 
 let find_interval = function(mass){
+//очистка класса с подсветкой
+for(let i = 0; i < keys.length; i++){
+  keys[i].classList.remove('active_one_key');
+}
+
   let keys_length = Object.keys(mass).length;
   let random_key_number = Math.floor(Math.random()*keys_length);
   let random_int_number = Math.floor(Math.random()*interval_massive_length);
-  console.log('Общая сумма = ' + random_key_number + ' + ' + random_int_number + ' = ' + (random_key_number+random_int_number));
+  
   if ((random_key_number + 1) + random_int_number >= keys_length){
     random_key_number -= random_int_number + 1;
-    console.log('random_key_number' + random_key_number);
+    
   }
   let random_key = mass[random_key_number];
   let random_int = interval_massive[random_int_number];
   random_key.classList.add('active_one_key');
-
-  // console.log(random_int);
-  // console.log(random_int_number);
-  // let key_step = random_key_number + interval_massive[step];
+  let sound = audioAll[random_key_number];
+  sound.play();
+  interval_marker = interval_massive[random_int_number];
   monitor_header.textContent = interval_massive[random_int_number];
-  // keys[key_step].classList.add('active_one_key');
+  comp_answer = random_key_number + random_int_number;
 }
 find_interval(keys);
-console.log();
 
-monitor_footer.addEventListener('mousedown', function () {
-  for(let i = 0; i < keys.length; i++){
-    keys[i].classList.remove('active_one_key');
+//таймер
+let timeMinut = 2 * 60;
+
+timer = setInterval(function () {
+  seconds = timeMinut%60 // Получаем секунды
+  minutes = timeMinut/60%60 // Получаем минуты
+ // Условие если время закончилось то...
+  if (timeMinut <= 0) {
+      // Таймер удаляется
+      clearInterval(timer);
+      // Выводит сообщение что время закончилось
+      alert("Время закончилось");
+      result.style.display = 'flex';
+      print_result();
+
+  } else { // Иначе
+      // Создаём строку с выводом времени
+      if(seconds <= 9){
+        seconds = '0' + seconds;
+      }
+      let strTimer = `0${Math.trunc(minutes)} : ${seconds}`;
+      // Выводим строку в блок для показа таймера
+      monitor_footer.innerHTML = strTimer;
+    
   }
+  --timeMinut; // Уменьшаем таймер
+}, 1000)
+
+let print_result = function(){
+  console.log(all_answer.length);
   
-  find_interval(keys);
-});
+  result.innerHTML += '<br>' + `из ${all_answer.length} ответов`;
+  result.innerHTML += '<br>' + `правильно - ${right_answer}`;
+  result.innerHTML += '<br>';
+  
+}
+
+// ориентация экрана
+var previousOrientation = window.orientation;
+var checkOrientation = function(){
+    if(window.orientation !== previousOrientation){
+        previousOrientation = window.orientation;
+        // orientation changed, do your magic here
+    }
+};
+
+window.addEventListener("resize", checkOrientation, false);
+window.addEventListener("orientationchange", checkOrientation, false);
+
+// (optional) Android doesn't always fire orientationChange on 180 degree turns
+setInterval(checkOrientation, 2000);

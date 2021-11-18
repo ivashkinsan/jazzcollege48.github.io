@@ -8,7 +8,8 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
-    font-size: 2em;
+    font-size: 5em;
+    font-weight: bold;
     width: 100vw;
     height: 30vh;
     background-color: aqua;
@@ -69,10 +70,23 @@ body {
 
   .monitor_footer {
       display: flex;
+      font-size: 2em;
       justify-content: center;
       border: 3px solid blue;
   }
 
   .active_one_key {
-      background: linear-gradient(45deg,rgb(93, 223, 255) 0%,rgb(90, 203, 255) 100%);
+     background: linear-gradient(45deg,rgb(93, 223, 255) 0%,rgb(90, 203, 255) 100%);
+  }
+
+  .result{
+      display: none;
+      justify-content: center;
+      align-items: center;
+      position: fixed;   
+      top: 0; right: 0; bottom: 0; left: 0;
+      font-size: 3em;
+      text-align: center;
+      background-color: rgb(221, 221, 221);
+      z-index: 1;
   }
