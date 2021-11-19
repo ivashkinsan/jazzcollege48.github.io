@@ -1,6 +1,4 @@
 let keys = document.querySelectorAll(".key");
-let audioArr = document.querySelectorAll("audio");
-const audioAll = document.querySelectorAll('audio');
 let monitor_header = document.querySelector('.monitor_header');
 let monitor_footer = document.querySelector('.monitor_footer');
 let user_answer = [];
@@ -11,32 +9,86 @@ let meter = 0;
 let interval_marker = '';
 let result = document.querySelector('.result');
 
+let interval_massive = ['м2', 'Б2', 'м3', 'Б3', 'ч4', 'ТТТ', 'ч5', 'м6', 'Б6', 'м7', 'Б7'];
+let interval_massive_length =  Object.keys(interval_massive).length;
 
+//воспроизведение семплов
+document.addEventListener('DOMContentLoaded', init);
+        //звуки
+        const SOUNDS = {
+            'clear-throat':null,
+            'doorbell':null,
+            'static':null
+        };
+        let allSrcSound = document.querySelectorAll('.key');
+        console.log(allSrcSound[0].dataset.file);
+        for(let i=0; i < allSrcSound.length; i++){
+        SOUNDS[allSrcSound[i].dataset.file] = null;
+        }        
+        // console.log(SOUNDS);
+        let allowSound = true; //разрешить звуки  
 
-//заполнить буфер
-let mySoundBuffer = new AudioContext();
-mySoundBuffer.createBuffer(2, 22050, 44100);
-// mySoundBuffer = audioAll[1];
-// console.log(mySoundBuffer);
-// for(i = 0; i < audioAll.length; i++){
-//   audioAll[i].createBuffer(2*30);
-// }
+        function init(){//создание функции init - обработчик тегов
+            for (let i = 0; i < allSrcSound.length; i++){
+            allSrcSound[i].addEventListener('click', play);
 
+            
+          };
+        }
+        
+        function play(ev){//создание функции play
+            let p = ev.currentTarget;//текущая цель
+            ev.preventDefault();//предотвратить дефолт
+            
+            let fn = p.getAttribute('data-file');//получить аттрибут дата-файл от параграфа
+            let src = './media/' + fn + '.mp3';//описать путь к файлу
+            if( SOUNDS[fn] ){
+                SOUNDS[fn].pause();
+                SOUNDS[fn] = null;
+            }
+            // console.log(src);
+            //let audio = document.getElementById("a");
+            let audio = document.createElement('audio'); //создать элемент аудио
+            //audio.removeAttribute('controls');
+            //document.body.appendChild(audio);
+            audio.src = src; // добавить аудио элементу аттрибут src
+            audio.volume = 0.2; //установить громкость элемента
+            //change the starting position in the file
+            //audio.currentTime = 0.8;
+            if(allowSound){
+                SOUNDS[fn] = audio; //записать в саунд по имени переменную аудио
+                audio.setAttribute('data-file', fn);//установить аттрибут
+                audio.play(); //воспроизвести элемент
+            }       
+            /**********************
+            Event list for <audio> and <video>
+            https://developer.mozilla.org/en-US/docs/Web/Guide/Events/Media_events
+            ***********************/
+            //listen for the event that ends sound
+            audio.addEventListener('playing', goAudio);
+            audio.addEventListener('ended', doneAudio);
+        }
+        function goAudio(ev){
+            // console.log(ev.target.src, 'has started playing');
+        }
+        function doneAudio(ev){
+            // console.log(ev.target.src, 'has finished playing');
+            let fn = ev.target.getAttribute('data-file');
+            SOUNDS[fn] = null;
+        }
 
+//******************* слушаем события
 for (let i = 0; i < keys.length; i++){
+  //событие тач
     keys[i].addEventListener('touchstart', function () {
-       
-        let sound = audioAll[i];
-        sound.play();
+      keys[i].classList.add('active_one_key');
+      user_answer = i-1;
           });
-    keys[i].addEventListener('mousedown', function () {
-     
-        let sound = audioAll[i];
+//событие мауз даун
+    keys[i].addEventListener('mousedown', function () {  
         keys[i].classList.add('active_one_key');
         user_answer = i-1;
-        
-        sound.play();
-
+              
         all_answer[meter] = {
           int_marker: interval_marker,
           comp: comp_answer,
@@ -53,43 +105,11 @@ for (let i = 0; i < keys.length; i++){
         console.log(all_answer);
 
 setTimeout(find_interval, 700, keys);
-
           });  
 };
 
-window.AudioContext = window.AudioContext || window.webkitAudioContext;
- 
- function play( snd ) {
-   var audioCtx = new AudioContext();
-  
-   var request = new XMLHttpRequest();
-   request.open( "GET", snd, true );
-   request.responseType = "arraybuffer";
-   request.onload = function () {
-     var audioData = request.response;
-  
-     audioCtx.decodeAudioData(
-       audioData,
-       function ( buffer ) {
-         var smp = audioCtx.createBufferSource();
-         smp.buffer = buffer;
-         smp.connect( audioCtx.destination );
-         smp.start( 0 );
-       },
-       function ( e ) {
-         alert( "Error with decoding audio data" + e.err );
-       }
-     );
-   };
-   request.send();
- }
-  
- 
 
-let interval_massive = ['м2', 'Б2', 'м3', 'Б3', 'ч4', 'ТТТ', 'ч5', 'м6', 'Б6', 'м7', 'Б7'];
-let interval_massive_length =  Object.keys(interval_massive).length;
-
-
+//************* функция найди интервал
 let find_interval = function(mass){
 //очистка класса с подсветкой
 for(let i = 0; i < keys.length; i++){
@@ -102,18 +122,21 @@ for(let i = 0; i < keys.length; i++){
   
   if ((random_key_number + 1) + random_int_number >= keys_length){
     random_key_number -= random_int_number + 1;
-    
   }
   let random_key = mass[random_key_number];
-  let random_int = interval_massive[random_int_number];
   random_key.classList.add('active_one_key');
-  let sound = audioAll[random_key_number];
-  sound.play();
+   
   interval_marker = interval_massive[random_int_number];
   monitor_header.textContent = interval_massive[random_int_number];
   comp_answer = random_key_number + random_int_number;
 }
 find_interval(keys);
+
+
+
+
+
+
 
 //таймер
 let timeMinut = 2 * 60;
@@ -137,11 +160,11 @@ timer = setInterval(function () {
       }
       let strTimer = `0${Math.trunc(minutes)} : ${seconds}`;
       // Выводим строку в блок для показа таймера
-      monitor_footer.innerHTML = strTimer;
-    
+      monitor_footer.innerHTML = strTimer;  
   }
   --timeMinut; // Уменьшаем таймер
 }, 1000)
+
 
 let print_result = function(){
   console.log(all_answer.length);
@@ -152,17 +175,17 @@ let print_result = function(){
   
 }
 
-// ориентация экрана
-var previousOrientation = window.orientation;
-var checkOrientation = function(){
-    if(window.orientation !== previousOrientation){
-        previousOrientation = window.orientation;
-        // orientation changed, do your magic here
-    }
-};
-
-window.addEventListener("resize", checkOrientation, false);
-window.addEventListener("orientationchange", checkOrientation, false);
-
+//****************** */ ориентация экрана
+// var previousOrientation = window.orientation;
+// var checkOrientation = function(){
+//     if(window.orientation !== previousOrientation){
+//         previousOrientation = window.orientation;
+//         // orientation changed, do your magic here
+//     }
+// };
+// window.addEventListener("resize", checkOrientation, false);
+// window.addEventListener("orientationchange", checkOrientation, false);
 // (optional) Android doesn't always fire orientationChange on 180 degree turns
-setInterval(checkOrientation, 2000);
+// setInterval(checkOrientation, 2000);
+
+
