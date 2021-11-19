@@ -1,4 +1,3 @@
-let keys = document.querySelectorAll(".key");
 let monitor_header = document.querySelector('.monitor_header');
 let monitor_footer = document.querySelector('.monitor_footer');
 let user_answer = [];
@@ -15,78 +14,105 @@ let interval_massive_length =  Object.keys(interval_massive).length;
 //воспроизведение семплов
 document.addEventListener('DOMContentLoaded', init);
         //звуки
-        const SOUNDS = {
-            'clear-throat':null,
-            'doorbell':null,
-            'static':null
-        };
-        let allSrcSound = document.querySelectorAll('.key');
-        console.log(allSrcSound[0].dataset.file);
-        for(let i=0; i < allSrcSound.length; i++){
-        SOUNDS[allSrcSound[i].dataset.file] = null;
-        }        
-        // console.log(SOUNDS);
-        let allowSound = true; //разрешить звуки  
+const SOUNDS = {};
+let allSrcSound = document.querySelectorAll('.key');
 
-        function init(){//создание функции init - обработчик тегов
-            for (let i = 0; i < allSrcSound.length; i++){
-            allSrcSound[i].addEventListener('click', play);
+//воспроизведение семплов продолжение
 
-            
-          };
-        }
-        
-        function play(ev){//создание функции play
-            let p = ev.currentTarget;//текущая цель
-            ev.preventDefault();//предотвратить дефолт
-            
-            let fn = p.getAttribute('data-file');//получить аттрибут дата-файл от параграфа
-            let src = './media/' + fn + '.mp3';//описать путь к файлу
-            if( SOUNDS[fn] ){
-                SOUNDS[fn].pause();
-                SOUNDS[fn] = null;
-            }
-            // console.log(src);
-            //let audio = document.getElementById("a");
-            let audio = document.createElement('audio'); //создать элемент аудио
-            //audio.removeAttribute('controls');
-            //document.body.appendChild(audio);
-            audio.src = src; // добавить аудио элементу аттрибут src
-            audio.volume = 0.2; //установить громкость элемента
-            //change the starting position in the file
-            //audio.currentTime = 0.8;
-            if(allowSound){
-                SOUNDS[fn] = audio; //записать в саунд по имени переменную аудио
-                audio.setAttribute('data-file', fn);//установить аттрибут
-                audio.play(); //воспроизвести элемент
-            }       
-            /**********************
-            Event list for <audio> and <video>
-            https://developer.mozilla.org/en-US/docs/Web/Guide/Events/Media_events
-            ***********************/
-            //listen for the event that ends sound
-            audio.addEventListener('playing', goAudio);
-            audio.addEventListener('ended', doneAudio);
-        }
-        function goAudio(ev){
-            // console.log(ev.target.src, 'has started playing');
-        }
-        function doneAudio(ev){
-            // console.log(ev.target.src, 'has finished playing');
-            let fn = ev.target.getAttribute('data-file');
-            SOUNDS[fn] = null;
-        }
+for(let i=0; i < allSrcSound.length; i++){
+  SOUNDS[allSrcSound[i].dataset.file] = null;
+  }        
+  let allowSound = true; //разрешить звуки  
+  
+  function init(){//создание функции init - обработчик тегов
+              for (let i = 0; i < allSrcSound.length; i++){
+              allSrcSound[i].addEventListener('click', play);     
+            };
+          }
+          console.log(allSrcSound[1]);
+  function play(ev){//создание функции play
+              let p = ev.currentTarget;//текущая цель
+              ev.preventDefault();//предотвратить дефолт
+              
+              let fn = p.getAttribute('data-file');//получить аттрибут дата-файл от параграфа
+              let src = './media/' + fn + '.mp3';//описать путь к файлу
+              if( SOUNDS[fn] ){
+                  SOUNDS[fn].pause();
+                  SOUNDS[fn] = null;
+              }
+              // console.log(src);
+              //let audio = document.getElementById("a");
+              let audio = document.createElement('audio'); //создать элемент аудио
+              //audio.removeAttribute('controls');
+              //document.body.appendChild(audio);
+              audio.src = src; // добавить аудио элементу аттрибут src
+              audio.volume = 1; //установить громкость элемента
+              //change the starting position in the file
+              audio.currentTime = 0.2;
+              if(allowSound){
+                  SOUNDS[fn] = audio; //записать в саунд по имени переменную аудио
+                  audio.setAttribute('data-file', fn);//установить аттрибут
+                  audio.play(); //воспроизвести элемент
+              }       
+              /**********************
+              Event list for <audio> and <video>
+              https://developer.mozilla.org/en-US/docs/Web/Guide/Events/Media_events
+              ***********************/
+              //listen for the event that ends sound
+              audio.addEventListener('playing', goAudio);
+              audio.addEventListener('ended', doneAudio);
+  }
+  
+  
+  function goAudio(ev){
+    // console.log(ev.target.src, 'has started playing');
+  }
+  
+  function doneAudio(ev){
+    // console.log(ev.target.src, 'has finished playing');
+    let fn = ev.target.getAttribute('data-file');
+     SOUNDS[fn] = null;
+  }
+  
+//************* функция найди интервал
+let find_interval = function(mass){
+  //очистка класса с подсветкой
+  for(let i = 0; i < allSrcSound.length; i++){
+    allSrcSound[i].classList.remove('active_one_key');
+  }
+  
+    let allSrcSound_length = Object.keys(mass).length;
+    let random_key_number = Math.floor(Math.random()*allSrcSound_length);
+    let random_int_number = Math.floor(Math.random()*interval_massive_length);
+    
+    if ((random_key_number + 1) + random_int_number >= allSrcSound_length){
+      random_key_number -= random_int_number + 1;
+    }
+    let random_key = mass[random_key_number];
+    random_key.classList.add('active_one_key');
+    console.log(allSrcSound[random_key_number].dataset.file);
+   
+     
+    interval_marker = interval_massive[random_int_number];
+    monitor_header.textContent = interval_massive[random_int_number];
+    comp_answer = random_key_number + random_int_number;
+  }
+  
+
+console.log('allSrcSound' + ' сработало');
+
+
 
 //******************* слушаем события
-for (let i = 0; i < keys.length; i++){
+for (let i = 0; i < allSrcSound.length; i++){
   //событие тач
-    keys[i].addEventListener('touchstart', function () {
-      keys[i].classList.add('active_one_key');
+  allSrcSound[i].addEventListener('touchstart', function () {
+    allSrcSound[i].classList.add('active_one_key');
       user_answer = i-1;
           });
 //событие мауз даун
-    keys[i].addEventListener('mousedown', function () {  
-        keys[i].classList.add('active_one_key');
+allSrcSound[i].addEventListener('mousedown', function () {  
+  allSrcSound[i].classList.add('active_one_key');
         user_answer = i-1;
               
         all_answer[meter] = {
@@ -103,38 +129,11 @@ for (let i = 0; i < keys.length; i++){
 
         meter += 1;
         console.log(all_answer);
-
-setTimeout(find_interval, 700, keys);
+setTimeout(find_interval, 700, allSrcSound);
           });  
 };
 
-
-//************* функция найди интервал
-let find_interval = function(mass){
-//очистка класса с подсветкой
-for(let i = 0; i < keys.length; i++){
-  keys[i].classList.remove('active_one_key');
-}
-
-  let keys_length = Object.keys(mass).length;
-  let random_key_number = Math.floor(Math.random()*keys_length);
-  let random_int_number = Math.floor(Math.random()*interval_massive_length);
-  
-  if ((random_key_number + 1) + random_int_number >= keys_length){
-    random_key_number -= random_int_number + 1;
-  }
-  let random_key = mass[random_key_number];
-  random_key.classList.add('active_one_key');
-   
-  interval_marker = interval_massive[random_int_number];
-  monitor_header.textContent = interval_massive[random_int_number];
-  comp_answer = random_key_number + random_int_number;
-}
-find_interval(keys);
-
-
-
-
+find_interval(allSrcSound);
 
 
 
