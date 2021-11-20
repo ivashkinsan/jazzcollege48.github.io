@@ -11,6 +11,7 @@ let result = document.querySelector('.result');
 let interval_massive = ['м2', 'Б2', 'м3', 'Б3', 'ч4', 'ТТТ', 'ч5', 'м6', 'Б6', 'м7', 'Б7'];
 let interval_massive_length =  Object.keys(interval_massive).length;
 
+let two_sound;
 //воспроизведение семплов
 document.addEventListener('DOMContentLoaded', init);
         //звуки
@@ -29,10 +30,17 @@ for(let i=0; i < allSrcSound.length; i++){
               allSrcSound[i].addEventListener('click', play);     
             };
           }
-          console.log(allSrcSound[1]);
-  function play(ev){//создание функции play
-              let p = ev.currentTarget;//текущая цель
-              ev.preventDefault();//предотвратить дефолт
+          // console.log(allSrcSound[1]);
+  function play(ev,firstSound){//создание функции play
+    console.log(ev);
+              let p;
+              if(ev){
+                p = ev.currentTarget;//текущая цель
+                ev.preventDefault();//предотвратить дефолт
+              }
+              if (firstSound){
+                p = firstSound;
+              }             
               
               let fn = p.getAttribute('data-file');//получить аттрибут дата-файл от параграфа
               let src = './media/' + fn + '.mp3';//описать путь к файлу
@@ -52,7 +60,18 @@ for(let i=0; i < allSrcSound.length; i++){
               if(allowSound){
                   SOUNDS[fn] = audio; //записать в саунд по имени переменную аудио
                   audio.setAttribute('data-file', fn);//установить аттрибут
+                  if(firstSound){
+                  two_sound = audio;
+                  console.log('второй добавлен = ' + two_sound);
+                  }
+                  if(ev){
+                    two_sound.play();
+                    // two_sound.play();
+                  }
+
+                  // console.log(play() + '');
                   audio.play(); //воспроизвести элемент
+                  
               }       
               /**********************
               Event list for <audio> and <video>
@@ -73,7 +92,7 @@ for(let i=0; i < allSrcSound.length; i++){
     let fn = ev.target.getAttribute('data-file');
      SOUNDS[fn] = null;
   }
-  
+
 //************* функция найди интервал
 let find_interval = function(mass){
   //очистка класса с подсветкой
@@ -90,19 +109,15 @@ let find_interval = function(mass){
     }
     let random_key = mass[random_key_number];
     random_key.classList.add('active_one_key');
-    console.log(allSrcSound[random_key_number].dataset.file);
-   
+    // console.log(allSrcSound[random_key_number].dataset.file);
+   play('',random_key)
+  
      
     interval_marker = interval_massive[random_int_number];
     monitor_header.textContent = interval_massive[random_int_number];
     comp_answer = random_key_number + random_int_number;
   }
   
-
-console.log('allSrcSound' + ' сработало');
-
-
-
 //******************* слушаем события
 for (let i = 0; i < allSrcSound.length; i++){
   //событие тач
@@ -128,14 +143,12 @@ allSrcSound[i].addEventListener('mousedown', function () {
         } else {all_answer[meter].answer = false;}
 
         meter += 1;
-        console.log(all_answer);
+        // console.log(all_answer);
 setTimeout(find_interval, 700, allSrcSound);
           });  
 };
 
 find_interval(allSrcSound);
-
-
 
 //таймер
 let timeMinut = 2 * 60;
