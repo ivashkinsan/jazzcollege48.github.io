@@ -201,3 +201,24 @@ let print_result = function(){
 // setInterval(checkOrientation, 2000);
 
 
+var context = new AudioContext(); // создаем аудио контекст - объект
+var source = context.createBufferSource(); // создаем аудио буффер - объект
+console.log('context' + context);
+console.log(context);
+console.log('source' + source);
+console.log(source);
+
+console.log('context.destination' + context.destination);
+console.log(context.destination);
+
+source.connect(context.destination); // объект аудио дестинешн нода
+
+var xhr = new XMLHttpRequest();
+xhr.open("GET", "audio.mp3", true); // забираем с сервера аудио файл
+xhr.responseType = "arraybuffer";
+xhr.onload = function(e) {
+  context.decodeAudioData(this.response, function(buffer){
+    source.buffer = buffer;
+    source.play();
+  })
+}
